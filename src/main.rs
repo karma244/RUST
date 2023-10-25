@@ -34,27 +34,25 @@ impl<R: io::BufRead> Scanner<R> {
 }
 
 
-//BOJ 2562
+//BOJ 10810
 fn main() {
     let mut scan = Scanner::new(stdin().lock());
     let mut out = io::BufWriter::new(stdout().lock());
 
-    let mut arr = vec![0; 9];
+    let (n, m) = (scan.token::<usize>(), scan.token::<usize>());
+    let mut arr = vec![0; n];
 
-    for i in 0..9 {
-        let x = scan.token::<i32>();
-        arr[i] = x;
-    }
-
-    let mut max = i32::MIN;
-    let mut idx = 0;
-    //GG
-    for i in 0..9 as usize {
-        if arr[i] > max {
-            max = arr[i];
-            idx = i + 1;
+    for _ in 0..m {
+        let (a, b, c) = (
+            scan.token::<usize>(),
+            scan.token::<usize>(),
+            scan.token::<i64>(),
+        );
+        for i in a-1..=b-1 {
+            arr[i] = c;
         }
     }
-    //GG
-    writeln!(out, "{}\n{}", max, idx).unwrap();
+    for x in arr {
+        write!(out, "{} ", x).unwrap();
+    }
 }
