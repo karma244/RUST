@@ -1,89 +1,81 @@
-use std::io::stdin;
+import random
 
-fn update_field(state: &[char]) {
-    print!("----SCORE----");
-    for i in 0..3 {
-        let offset = i * 3;
+def istaked(state, x):
+    if state[x-1] == 'X' or state[x-1] == 'O':
+        return True;
+    return False;
 
-        print!("\n-------------\n| ");
-        print!("{}", state[offset]);
-        print!(" | ");
-        print!("{}", state[offset+1]);
-        print!(" | ");
-        print!("{}", state[offset+2]);
-        print!(" |");
-    }
+def update_field(state):
+    print("----STATE----");
+    print(" %c | %c | %c " % (state[0], state[1], state[2]))
+    print("___|___|___")
+    print(" %c | %c | %c " % (state[3], state[4], state[5]))
+    print("___|___|___")
+    print(" %c | %c | %c " % (state[6], state[7], state[8]))
+    print("-------------\n");
 
-    print!("\n-------------\n");
-}
+def turn_changed(state, player, flag):
+    while True:
+        if flag == False:
+            x = int(input("Player: {}\n숫자를 입력하세요.\n".format(player)))
+            if istaked(state, x):
+                print("이미 선택된 칸입니다.")
+            else:
+                state[x-1] = player
+                return state
+        else:
+            if player == 'O':
+                x = int(input("당신의 차례입니다.\n숫자를 입력하세요.\n".format(player)))
+                if istaked(state, x):
+                    print("이미 선택된 칸입니다.")
+                else:    
+                    state[x-1] = player
+                    return state
+            ran = random.randint(0, 9)
+            print(ran)
+            if istaked(state, ran):
+                print("이미 선택된 칸입니다.")
+            else:
+                state[ran-1] = player
+                return state
+            
+def exist_winner(state):
+    for i in range(0, 3):
+        if state[i] == state[i + 3] and state[i] == state[i + 6]:
+            return True;
+        
+    for i in range(0, 7, 3):
+        if state[i] == state[i + 1] and state[i] == state[i + 2]:
+            return True;
 
-fn turn_changed(state: &mut [char], player: char) {
-    loop {
-        print!("Player: {}\nEnter the number:\n", player);
+    if (state[0] == state[4] and state[0] == state[8]) or (state[2] == state[4] and state[2] == state[6]):
+        return True;
 
-        let mut input = String::new();
-        stdin().read_line(&mut input).unwrap();
+    return False;
 
-        if let Ok(number) = input.trim().parse::<usize>() {
-            if number < 1 || number > 9 {
-                print!("Enter the valid field number");
-                continue;
-            }
+def check_draw(state):
+    return all(x == 'O' or x == 'X' for x in state)
+
+state = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+now_player = 'X'
+flag = input("AI와 대련 하시겠습니까? (무적 아님) O/X: ")
+
+while True:
+    update_field(state)
     
-            let number = number - 1;
+    if flag == 'O':
+        state = turn_changed(state, now_player, True)
+    else:
+        state = turn_changed(state, now_player, False)
+        
+    if exist_winner(state):
+        update_field(state)
+        print("{}이/가 이겼습니다".format(now_player))
+        break
     
-            if state[number] == 'X' || state[number] == 'O' {
-                println!("This field is already taken by : {}", player);
-                continue;
-            }
+    if check_draw(state):
+        print("비겼습니다. 게임이 종료됩니다.")
+        break
     
-            state[number] = player;
-            break;
-        }
-        else {
-            println!("Enter the valid text.");
-            continue;
-        }
-    }
-}
-
-fn exist_winner(state: &[char]) -> bool{
-    for i in 0..3 {
-        if state[i] == state[i + 3] && state[i] == state[i + 6] {
-            return true;
-        }
-
-        let i = i * 3;
-
-        if state[i] == state[i + 1] && state[i] == state[i + 2] {
-            return true;
-        }
-    }
-
-    if (state[0] == state[4] && state[0] == state[8])
-        || (state[2] == state[4] && state[2] == state[6]) {
-        return true;
-    }
-
-    return false;
-}
-
-//Making a Tic-Tac-Toe game 
-fn main() {
-    let mut state = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    let mut now_player = 'X';
-
-    loop {
-        update_field(&state);
-
-        turn_changed(&mut state, now_player);
-
-        if exist_winner(&state) {
-            update_field(&state);
-            println!("Player: {} win!!!!!!", now_player);
-            break;
-        }
-
-        now_player = if now_player == 'X' {'O'} else {'X'}
-    }
-}
+    if now_player == 'X': now_player = 'O'
+    else: now_player = 'X'
